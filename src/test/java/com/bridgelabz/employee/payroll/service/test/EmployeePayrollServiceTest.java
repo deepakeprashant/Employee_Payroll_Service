@@ -1,6 +1,7 @@
 package com.bridgelabz.employee.payroll.service.test;
 
 import com.bridgelabz.employee.payroll.service.FileUtils;
+import com.bridgelabz.employee.payroll.service.WatchServiceExample;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -45,4 +46,10 @@ public class EmployeePayrollServiceTest {
                 .forEach(System.out::println);
     }
 
+    @Test
+    void givenADirectory_WhenWatched_ListsAllTheActivities() throws IOException {
+        Path dir = Paths.get(HOME + "/" + PLAY_WITH_NIO);
+        Files.list(dir).filter(Files::isRegularFile).forEach(System.out::println);
+        new WatchServiceExample(dir).processEvents();
+    }
 }
