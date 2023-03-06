@@ -1,55 +1,35 @@
 package com.bridgelabz.employee.payroll.service.test;
 
+import com.bridgelabz.employee.payroll.service.EmployeePayrollData;
+import com.bridgelabz.employee.payroll.service.EmployeePayrollService;
 import com.bridgelabz.employee.payroll.service.FileUtils;
 import com.bridgelabz.employee.payroll.service.WatchServiceExample;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.stream.IntStream;
+import java.util.Arrays;
 
 public class EmployeePayrollServiceTest {
-    private static final String HOME = System.getProperty("user.home");
-    private static final String PLAY_WITH_NIO = "PlayGround";
-
     @Test
-    void givenPathName_WhenChecked_ThenConfirm() throws IOException {
-
-        Path homePath = Paths.get(HOME);
-        Assertions.assertTrue(Files.exists(homePath));
-
-        Path playPath = Paths.get(HOME + "/" + PLAY_WITH_NIO);
-        if (Files.exists(playPath))
-            FileUtils.deleteFiles(playPath.toFile());
-        Assertions.assertTrue(Files.notExists(playPath));
-
-        Files.createDirectory(playPath);
-        Assertions.assertTrue(Files.exists(playPath));
-
-        IntStream.range(1, 10).forEach(cntr -> {
-            Path tempFile = Paths.get(playPath + "/temp" + cntr);
-            Assertions.assertTrue(Files.notExists(tempFile));
-            try {
-                Files.createFile(tempFile);
-            } catch (IOException e) {
-                Assertions.assertTrue(Files.exists(tempFile));
-            }
-        });
-
-        Files.list(playPath).filter(Files::isRegularFile).forEach(System.out::println);
-        Files.newDirectoryStream(playPath).forEach(System.out::println);
-        Files.newDirectoryStream(playPath, path -> path.toFile().isFile() &&
-                        path.toString().startsWith("temp"))
-                .forEach(System.out::println);
+    void given3Employees_WhenWrittenToFile_ShouldMatchEmployeeEntries()throws IOException {
+        EmployeePayrollData[] arrayOfEmps = {
+                new EmployeePayrollData(101, "Prashant Deepake", 1000000.0),
+                new EmployeePayrollData(102, "Akshay Kumar", 2000000.0),
+                new EmployeePayrollData(103, "Sharukh Khan", 300000.0),
+        };
+        EmployeePayrollService employeePayrollService;
+        employeePayrollService = new EmployeePayrollService(Arrays.asList(arrayOfEmps));
+        employeePayrollService.writeEmployeePayrollData(EmployeePayrollService.IOService.FILE_IO);
+        employeePayrollService.printData(EmployeePayrollService.IOService.FILE_IO);
+        long entries = employeePayrollService.countEntries(EmployeePayrollService.IOService.FILE_IO);
+        Assertions.assertEquals(3, entries);
     }
-
     @Test
-    void givenADirectory_WhenWatched_ListsAllTheActivities() throws IOException {
-        Path dir = Paths.get(HOME + "/" + PLAY_WITH_NIO);
-        Files.list(dir).filter(Files::isRegularFile).forEach(System.out::println);
-        new WatchServiceExample(dir).processEvents();
+    void givenFileOnReadingFromFileShouldMatchEmployeeCount() throws IOException{
+        EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+        employeePayrollService.readEmployeePayrollData(EmployeePayrollService.IOService.FILE_IO);
+        long entries = employeePayrollService.countEntries(EmployeePayrollService.IOService.FILE_IO);
+        Assertions.assertEquals(3, entries);
     }
 }
